@@ -20,8 +20,9 @@ void control();
 bool menu(FILE** fpT, FILE** fpB);
 void file_ops(FILE** fp, const char* filename, const char* mode);
 void display_files(FILE** fp, char mode);
-void append_to_files(FILE** fp, char mode);
+void append_to_files(FILE** fp);
 void delete_entry(FILE** fp, char mode, const int* entry_list, int entry_count);
+void load_employee_data(Employee* emp);
 
 int main() {
 
@@ -76,8 +77,7 @@ bool menu(FILE** fpT, FILE** fpB) {
                 break;
             
             case 2: 
-                append_to_file(&fpT, TXT);
-                append_to_file(&fpB, BIN);
+                append_to_file(&fpT);
                 break;
 
             case 3:
@@ -155,42 +155,31 @@ void display_files(FILE** fp, char mode) {
     }
 
 }
-void append_to_files(FILE** fp, char mode) {
-    
+void append_to_files(FILE** fp) {
+   	char mode = TXT; 
         switch(mode) {
         case TXT:
             
             file_ops(fp, f1, "a");
             
-            int count = 0;
+            char* emp_data;
 
             Employee emp;
+	    load_employee_data(&emp);
+	    sprintf(emp_data, "%s %s %d\n", emp.name, emp.emp_id, emp.salary);
+	    fprintf(*fp, "%s", emp_data);
 
+	    printf("Entry :: %s\twas added to the file\n", emp_data);
 
             fclose(*fp);
             *fp = NULL;
             
-            break;
         
         case BIN:
-            file_ops(fp, f1, "rb");
 
-            if(!feof(*fp)) {
-
-                int count = 0;
-                char ch;
-                while(!feof()) {
-                    count++;
-                    printf("%d | ",count);
-                    printf("%c",fread(&ch, sizeof(char), 1, *fp));
-
-                }
-
-            } else {
-
-                printf("No entry in the file yet!!\n");
-
-            }
+	    file_ops(fp, f1, "ab");	
+		
+	    fwrite(&emp, sizeof(Employee), 1, *fp);
 
             fclose(*fp);
             *fp = NULL;
@@ -199,3 +188,4 @@ void append_to_files(FILE** fp, char mode) {
 
 }
 void delete_entry(FILE** fp, char mode, const int* entry_list, int entry_count);
+void load_employee_data(Employee* emp){}
